@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>FreePo Patient Setup</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.0/qrcode.min.js"></script>
+    <!-- Firebase SDK (modules) -->
+    <script type="module" src="app.js"></script>
+</head>
+<body>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+
+        <!-- ===== 1. Splash Screen ===== -->
+        <div id="splash-screen" class="screen">
+            <div class="card splash-card">
+                <header class="splash-header">
+                    <img id="clinic-logo" src="https://placehold.co/100x100/0095f6/white?text=Logo" alt="Clinic Logo" class="logo">
+                    <h1 id="clinic-name">Clinic Name</h1>
+                    <p id="clinic-description">Loading clinic details...</p>
+                </header>
+                <button id="start-setup-btn" class="btn primary full-width">
+                    <i class="fas fa-user-plus"></i>
+                    Start Patient Setup
+                </button>
+                <footer class="freepo-footer">
+                    Powered by <strong>FreePo</strong>
+                </footer>
+            </div>
+        </div>
+
+        <!-- ===== 2. Form Screen (MODIFIED) ===== -->
+        <div id="form-screen" class="screen hidden">
+            <div class="card">
+                <header class="card-header">
+                    <button id="back-to-splash" class="icon-btn back-btn" aria-label="Back to splash screen"><i class="fas fa-chevron-left"></i></button>
+                    <!--<h2>New Patient Details</h2>-->
+                    <h2>Patient Intake Form</h2>
+                </header>
+                <div class="card-header">
+                    <p>Please fill out all required information below</p>
+                </div>
+                
+                <form id="patient-form" novalidate>
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="patient-name">Full Name of patient *</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user icon"></i>
+                            <input type="text" id="patient-name" placeholder="e.g., Jane Doe" required>
+                        </div>
+                        <div class="error-message">Please enter your full name</div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="patient-email">Email Address *</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope icon"></i>
+                            <input type="email" id="patient-email" placeholder="e.g., jane@example.com" required>
+                        </div>
+                        <div class="error-message">Please enter a valid email address</div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-group">
+                        <label for="patient-phone">Phone Number *</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone icon"></i>
+                            <input type="tel" id="patient-phone" placeholder="e.g., (555) 123-4567" required>
+                        </div>
+                        <div class="error-message">Please enter a valid 10-digit phone number</div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="form-group">
+                        <label for="patient-dob">Date of Birth *</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-calendar-alt icon"></i>
+                            <input type="date" id="patient-dob" required>
+                        </div>
+                        <div class="error-message">Please enter your date of birth</div>
+                    </div>
+
+                    <!-- Nation -->
+                    <div class="form-group">
+                        <label for="patient-nation">Nationality *</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-flag icon"></i>
+                            <select id="patient-nation" required>
+                                <option value="">Select Nationality</option>
+                                <option value="Tunisia">Tunisia</option>
+                                <option value="Libiya">Libiya</option>
+                                <option value="Algeria">Algeria</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="error-message">Please select your nationality</div>
+                    </div>
+
+                    <!-- Other think to said -->
+                    <div class="form-group">
+                        <label for="patient-symptoms">Other think to said</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-notes-medical icon"></i>
+                            <textarea id="patient-symptoms" rows="4" placeholder="Optional notes..."></textarea>
+                        </div>
+                        <!-- No error message needed for optional field -->
+                    </div>
+                    
+                    <button type="submit" id="submit-form-btn" class="btn primary full-width">
+                        <span class="btn-text">Generate Patient Link</span>
+                        <div class="spinner-small hidden"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== 3. Share Screen ===== -->
+        <div id="share-screen" class="screen hidden">
+            <div class="card">
+                <header class="card-header">
+                    <button id="setup-new-patient" class="icon-btn back-btn" aria-label="Setup new patient"><i class="fas fa-plus"></i></button>
+                    <h2>Share Patient's Link</h2>
+                </header>
+                
+                <p class="share-instructions">
+                    Scan the QR code or share the link with friends and family. This link allows them to send videos and messages to the patient.
+                </p>
+
+                <div class="qr-container">
+                    <canvas id="qr-canvas"></canvas>
+                </div>
+
+                <div class="share-link-container">
+                    <input type="text" id="share-link" readonly>
+                    <!-- Native Share Button (hidden by default) -->
+                    <button id="native-share-btn" class="btn primary hidden" aria-label="Share link">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <button id="copy-link-btn" class="btn secondary" aria-label="Copy link">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                
+                <div class="info-box">
+                    <p><strong><i class="fas fa-heartbeat"></i> We aim to...</strong></p>
+                    <p>...include activities that reduce feelings of distance and isolation, helping patients confront loneliness.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Global Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p id="loading-text">Loading...</p>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+</body>
+</html>
